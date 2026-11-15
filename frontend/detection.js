@@ -1,10 +1,10 @@
 (function (root, factory) {
   "use strict";
-  const api = factory();
+  const api = factory(root);
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   root.DashGuardObjectDetection = api.DetectionController;
   root.DashGuardDetectionUtils = api;
-})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (root) {
   "use strict";
 
   const RELEVANT_LABELS = new Set([
