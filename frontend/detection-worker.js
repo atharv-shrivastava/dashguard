@@ -15,11 +15,14 @@ self.onmessage = async event => {
   if (message.type === "init") {
     if (loading || detector) return;
     loading = true;
+    let loadingStage = "MediaPipe JavaScript runtime";
     try {
       const { FilesetResolver, ObjectDetector, FaceDetector } = await import(
         MEDIAPIPE_BASE + "/vision_bundle.mjs"
       );
+      loadingStage = "MediaPipe WebAssembly runtime";
       const vision = await FilesetResolver.forVisionTasks(MEDIAPIPE_BASE + "/wasm");
+      loadingStage = "road-object detection model";
       detector = await ObjectDetector.createFromOptions(vision, {
         baseOptions: {
           modelAssetPath: MODEL_URL,
@@ -30,6 +33,7 @@ self.onmessage = async event => {
         maxResults: 25
       });
       try {
+        loadingStage = "optional face-detection model";
         faceDetector = await FaceDetector.createFromOptions(vision, {
           baseOptions: {
             modelAssetPath: FACE_MODEL_URL,
@@ -49,14 +53,18 @@ self.onmessage = async event => {
         });
       }
       loading = false;
-      self.postMessage({ type: "ready" });
+      self.postMessage({
+        type: "ready",
+        faceDetectionAvailable: Boolean(faceDetector)
+      });
     } catch (error) {
       loading = false;
       self.postMessage({
         type: "error",
         fatal: true,
-        message: "The local vision model could not load. Connect once to download its runtime and model, then retry. " +
-          (error && error.message ? error.message : "")
+        message: "Could not load the " + loadingStage +
+          ". Check your connection and retry. Details: " +
+          (error && error.message ? error.message : "unknown loading error")
       });
     }
     return;
