@@ -61,7 +61,7 @@ Detection boxes are object labels only. This milestone does not estimate distanc
 
 Distance/TTC estimation, audio safety alerts, video recording, 60-second pre-event buffering and protected event clips are not implemented. Browser camera and sensor access remain foreground-only.
 
-A browser/PWA shell does not provide dependable background camera recording on a phone. The eventual camera, sensor and rolling-recording pipeline must live in a platform layer that can own those device capabilities.
+Browser camera and motion access are foreground features. DashGuard stops the camera when you leave Drive Mode, and a browser may suspend capture when the tab is backgrounded or the phone is locked. The web version will not claim to be a dependable background dashcam; any future recording feature must clearly show when capture is active and handle browser interruptions.
 
 
 ## Object-detection tests
