@@ -5,7 +5,7 @@ An offline-first, phone-first driving companion web app built with HTML, CSS and
 ## Current web features
 
 - Phone-first Drive Mode interface.
-- Rear-camera preview with on-device object detection using MediaPipe Tasks Vision in a Web Worker.
+- Rear-camera preview with on-device face and road-object detection using MediaPipe Tasks Vision in a Web Worker.
 - Lightweight multi-object tracking with session IDs across consecutive frames.
 - Live phone motion monitoring with acceleration, gyroscope readings when available, and a rolling jerk graph.
 - Service-worker caching for the app shell and the vision runtime/model after first use where supported by the browser.
