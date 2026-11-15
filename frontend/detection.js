@@ -13,12 +13,13 @@
   ]);
   const MINIMUM_SCORE = 0.35;
   const FRAME_INTERVAL_MS = 180;
-  const ASSET_CACHE = "dashguard-ui-v7";
+  const ASSET_CACHE = "dashguard-ui-v8";
   const MEDIAPIPE_ASSETS = [
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/vision_bundle.mjs",
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm/vision_wasm_internal.js",
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm/vision_wasm_internal.wasm",
-    "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float32/1/efficientdet_lite0.tflite"
+    "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float32/1/efficientdet_lite0.tflite",
+    "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_full_range/float16/1/blaze_face_full_range.tflite"
   ];
 
   function filterRelevantDetections(detections, minimumScore = MINIMUM_SCORE) {
