@@ -309,6 +309,7 @@ test("continues worker initialization when an asset prefetch fails", async () =>
 test("creates a classic worker for MediaPipe WASM compatibility", async () => {
   const previousWorker = Object.getOwnPropertyDescriptor(globalThis, "Worker");
   const previousDocument = Object.getOwnPropertyDescriptor(globalThis, "document");
+  const previousCaches = Object.getOwnPropertyDescriptor(globalThis, "caches");
   let workerOptions = "not-created";
 
   class MockWorker {
@@ -333,6 +334,10 @@ test("creates a classic worker for MediaPipe WASM compatibility", async () => {
     configurable: true,
     value: MockWorker
   });
+  Object.defineProperty(globalThis, "caches", {
+    configurable: true,
+    value: undefined
+  });
   Object.defineProperty(globalThis, "document", {
     configurable: true,
     value: { baseURI: "https://dashguard.test/frontend/" }
@@ -355,5 +360,7 @@ test("creates a classic worker for MediaPipe WASM compatibility", async () => {
     else delete globalThis.Worker;
     if (previousDocument) Object.defineProperty(globalThis, "document", previousDocument);
     else delete globalThis.document;
+    if (previousCaches) Object.defineProperty(globalThis, "caches", previousCaches);
+    else delete globalThis.caches;
   }
 });
