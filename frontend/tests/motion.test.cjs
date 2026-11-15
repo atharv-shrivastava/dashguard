@@ -106,7 +106,7 @@ test("does not start when the user denies motion permission", async () => {
   assert.equal(await harness.monitor.start(), false);
   assert.equal(harness.hasListener(), false);
   assert.equal(harness.statuses.at(-1).state, "error");
-  assert.equal(harness.errors.length, 0);
+  assert.equal(harness.errors.length, 1);
 });
 
 test("stops cleanly when the sensor provides no usable acceleration fields", async () => {
