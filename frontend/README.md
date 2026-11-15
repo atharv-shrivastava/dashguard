@@ -29,12 +29,22 @@ The Drive screen now reads browser `DeviceMotionEvent` data after the user taps 
 - The motion monitor runs while the page is active. It is not a background sensor service.
 - The displayed high-jerk marker uses a prototype threshold and is **not calibrated, validated, or connected to automatic event capture**.
 
+## Live camera preview
+
+Drive Mode now requests a live video preview when **Start Drive** is tapped. It prefers the rear-facing camera, requests video only (no microphone), and places the stream directly in the Drive screen. Use **Stop Camera** to release it without ending Drive Mode. Leaving the Drive screen or ending Drive Mode also stops every camera track.
+
+- Camera access requires a secure context: use HTTPS or localhost. The browser will ask for camera permission.
+- Rear-camera selection is a preference, not a guarantee on every device/browser.
+- The preview is foreground-only and is **not recording or saving video**. Object detection, distance/TTC estimation and incident recording are separate features not connected yet.
+- If permission is denied, the camera is unavailable, or another app is using it, the Drive screen shows an error and allows a retry.
+- The native camera indicator remains controlled by the operating system/browser.
+
 ## Run motion-monitor tests
 
 From this directory, with Node.js installed:
 
 ```bash
-node --test tests/motion.test.cjs
+node --test tests/*.test.cjs
 ```
 
 The tests cover linear-acceleration readings, jerk calculation, the gravity-compensated fallback, gyroscope readings, denied permission, and missing sensor data. They use mocked browser events; they do not replace testing on a physical phone.
