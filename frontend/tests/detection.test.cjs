@@ -166,3 +166,14 @@ test("resets track IDs when a new detection session begins", () => {
   assert.equal(first[0].trackId, 1);
   assert.equal(next[0].trackId, 1);
 });
+
+
+test("expires a track after the elapsed-time budget even if missed-frame budget remains", () => {
+  const tracker = new GreedyObjectTracker({ maxMissedFrames: 20, maxMissedMs: 300 });
+  const first = tracker.update([detection("car", 120)], 1000, { width: 1280, height: 720 });
+  tracker.update([], 1180, { width: 1280, height: 720 });
+  tracker.update([], 1360, { width: 1280, height: 720 });
+  const reappeared = tracker.update([detection("car", 120)], 1540, { width: 1280, height: 720 });
+
+  assert.notEqual(reappeared[0].trackId, first[0].trackId);
+});
