@@ -217,3 +217,90 @@ test("assigns a stable tracking ID to a face across adjacent frames", () => {
   assert.equal(first[0].trackId, next[0].trackId);
   assert.equal(next[0].trackingConfirmed, true);
 });
+
+test("starts the detector when Cache Storage cannot be opened", async () => {
+  const previousCaches = Object.getOwnPropertyDescriptor(globalThis, "caches");
+  const previousFetch = Object.getOwnPropertyDescriptor(globalThis, "fetch");
+  Object.defineProperty(globalThis, "caches", {
+    configurable: true,
+    value: { open: async () => { throw new Error("storage blocked"); } }
+  });
+
+  let createdWorker;
+  const detector = new DetectionController({
+    videoElement: { readyState: 4, videoWidth: 640, videoHeight: 480, currentTime: 1 },
+    canvasElement: { getContext: () => ({ clearRect() {} }) },
+    workerFactory: () => {
+      createdWorker = {
+        onmessage: null,
+        onerror: null,
+        postMessage(message) {
+          if (message.type === "init") {
+            queueMicrotask(() => this.onmessage({ data: { type: "ready", faceDetectionAvailable: true } }));
+          }
+        },
+        terminate() {}
+      };
+      return createdWorker;
+    },
+    createBitmap: async () => ({ close() {} }),
+    requestFrame: () => 1,
+    cancelFrame() {}
+  });
+
+  try {
+    assert.equal(await detector.start(), true);
+    assert.equal(detector.running, true);
+    detector.stop();
+  } finally {
+    if (previousCaches) Object.defineProperty(globalThis, "caches", previousCaches);
+    else delete globalThis.caches;
+    if (previousFetch) Object.defineProperty(globalThis, "fetch", previousFetch);
+  }
+});
+
+test("continues worker initialization when an asset prefetch fails", async () => {
+  const previousCaches = Object.getOwnPropertyDescriptor(globalThis, "caches");
+  const previousFetch = Object.getOwnPropertyDescriptor(globalThis, "fetch");
+  Object.defineProperty(globalThis, "caches", {
+    configurable: true,
+    value: {
+      open: async () => ({
+        match: async () => null,
+        put: async () => {}
+      })
+    }
+  });
+  Object.defineProperty(globalThis, "fetch", {
+    configurable: true,
+    value: async () => { throw new Error("network unavailable"); }
+  });
+
+  const detector = new DetectionController({
+    videoElement: { readyState: 4, videoWidth: 640, videoHeight: 480, currentTime: 1 },
+    canvasElement: { getContext: () => ({ clearRect() {} }) },
+    workerFactory: () => ({
+      onmessage: null,
+      onerror: null,
+      postMessage(message) {
+        if (message.type === "init") {
+          queueMicrotask(() => this.onmessage({ data: { type: "ready", faceDetectionAvailable: false } }));
+        }
+      },
+      terminate() {}
+    }),
+    createBitmap: async () => ({ close() {} }),
+    requestFrame: () => 1,
+    cancelFrame() {}
+  });
+
+  try {
+    assert.equal(await detector.start(), true);
+    assert.equal(detector.running, true);
+    detector.stop();
+  } finally {
+    if (previousCaches) Object.defineProperty(globalThis, "caches", previousCaches);
+    else delete globalThis.caches;
+    if (previousFetch) Object.defineProperty(globalThis, "fetch", previousFetch);
+  }
+});
