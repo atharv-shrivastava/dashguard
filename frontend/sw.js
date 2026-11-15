@@ -1,4 +1,4 @@
-const CACHE = "dashguard-ui-v6";
+const CACHE = "dashguard-ui-v7";
 const ASSETS = [
   "./", "./index.html", "./styles.css", "./app.js", "./camera.js",
   "./motion.js", "./detection.js", "./detection-worker.js",

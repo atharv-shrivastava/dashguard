@@ -13,7 +13,7 @@
   ]);
   const MINIMUM_SCORE = 0.35;
   const FRAME_INTERVAL_MS = 180;
-  const ASSET_CACHE = "dashguard-ui-v6";
+  const ASSET_CACHE = "dashguard-ui-v7";
   const MEDIAPIPE_ASSETS = [
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/vision_bundle.mjs",
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm/vision_wasm_internal.js",
