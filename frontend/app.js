@@ -77,7 +77,8 @@
 
   const setDetectionStatus = (state, label) => {
     detectionStatus.className = "detection-status " + state;
-    detectionStatus.textContent = label;
+    detectionStatus.textContent = label === "LOCAL DETECTION LIVE" ? "FACE + OBJECT DETECTION LIVE" : label;
+    if (state === "active") detectionSummary.textContent = "Scanning the camera frame";
   };
 
   const objectDetector = window.DashGuardObjectDetection
@@ -90,10 +91,10 @@
           roadObjectCount.textContent = String(detections.length);
           detectionSummary.textContent = detections.length
             ? "Tracked · " + detections.slice(0, 4).map(item => item.label + " #" + item.trackId).join(", ")
-            : "No supported objects in this frame";
+            : "Scanning: no faces or road objects yet";
           roadObjectSummary.textContent = detections.length
             ? [...new Set(detections.map(item => item.label + " #" + item.trackId))].join(" · ")
-            : "No road objects in view";
+            : "No faces or road objects in view";
           inferenceTime.innerHTML = Number.isFinite(meta.inferenceMs)
             ? Math.round(meta.inferenceMs) + ' <em>ms</em>'
             : '— <em>ms</em>';
