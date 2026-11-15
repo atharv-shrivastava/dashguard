@@ -58,12 +58,20 @@
       this.filteredJerk = 0;
       window.addEventListener("devicemotion", this.handleMotion, { passive: true });
       this.onStatus("waiting", "WAITING FOR SENSOR");
-      this.timeoutId = window.setTimeout(() => {
-        if (this.active && !this.lastEventAt) {
-          this.fail("No sensor readings received. Check browser permission and device support.");
-        }
-      }, 3500);
+      this.armWatchdog();
       return true;
+    }
+
+    armWatchdog() {
+      window.clearTimeout(this.timeoutId);
+      this.timeoutId = window.setTimeout(() => {
+        if (!this.active) return;
+        const silenceMs = this.lastEventAt ? performance.now() - this.lastEventAt : Infinity;
+        const message = this.lastEventAt
+          ? "Motion readings stopped. Check that the browser is still allowed to use the sensors."
+          : "No sensor readings received. Check browser permission and device support.";
+        if (silenceMs >= 3500) this.fail(message);
+      }, 4000);
     }
 
     stop() {
@@ -109,10 +117,7 @@
       const now = performance.now();
       const dt = this.lastEventAt ? (now - this.lastEventAt) / 1000 : 0;
       this.lastEventAt = now;
-      if (this.timeoutId) {
-        window.clearTimeout(this.timeoutId);
-        this.timeoutId = null;
-      }
+      this.armWatchdog();
 
       if (!dt || dt < 0.005 || dt > 1) return;
       const acceleration = this.readLinearAcceleration(event, dt);
