@@ -8,7 +8,7 @@
   "use strict";
 
   const RELEVANT_LABELS = new Set([
-    "person", "bicycle", "car", "motorcycle", "bus", "train", "truck",
+    "person", "face", "bicycle", "car", "motorcycle", "bus", "train", "truck",
     "traffic light", "stop sign", "parking meter"
   ]);
   const MINIMUM_SCORE = 0.35;
@@ -29,6 +29,27 @@
       }))
       .filter(item => RELEVANT_LABELS.has(item.label) &&
         Number.isFinite(item.score) && item.score >= minimumScore &&
+        item.box && Number.isFinite(item.box.x) && Number.isFinite(item.box.y) &&
+        Number.isFinite(item.box.width) && Number.isFinite(item.box.height));
+  }
+
+  function normalizeFaceDetections(detections, minimumScore = MINIMUM_SCORE) {
+    return (Array.isArray(detections) ? detections : [])
+      .map(item => {
+        const category = item && item.categories && item.categories[0];
+        const box = item && item.boundingBox;
+        return {
+          label: "face",
+          score: category && Number.isFinite(category.score) ? category.score : 0,
+          box: box ? {
+            x: box.originX,
+            y: box.originY,
+            width: box.width,
+            height: box.height
+          } : null
+        };
+      })
+      .filter(item => Number.isFinite(item.score) && item.score >= minimumScore &&
         item.box && Number.isFinite(item.box.x) && Number.isFinite(item.box.y) &&
         Number.isFinite(item.box.width) && Number.isFinite(item.box.height));
   }
@@ -401,8 +422,9 @@
         const box = mapBoxToCover(detection.box, imageWidth, imageHeight, rect.width, rect.height);
         if (box.x + box.width < 0 || box.y + box.height < 0 ||
             box.x > rect.width || box.y > rect.height) continue;
-        context.strokeStyle = "#d8e8bd";
-        context.fillStyle = "rgba(25, 39, 31, 0.86)";
+        const isFace = detection.label === "face";
+        context.strokeStyle = isFace ? "#f4c38d" : "#d8e8bd";
+        context.fillStyle = isFace ? "rgba(65, 43, 28, 0.9)" : "rgba(25, 39, 31, 0.86)";
         context.strokeRect(box.x, box.y, box.width, box.height);
         const identity = Number.isInteger(detection.trackId) ? " #" + detection.trackId : "";
         const caption = detection.label.toUpperCase() + identity + " " + Math.round(detection.score * 100) + "%";
@@ -444,5 +466,5 @@
     }
   }
 
-  return { DetectionController, GreedyObjectTracker, filterRelevantDetections, intersectionOverUnion, mapBoxToCover };
+  return { DetectionController, GreedyObjectTracker, filterRelevantDetections, intersectionOverUnion, mapBoxToCover, normalizeFaceDetections };
 });
