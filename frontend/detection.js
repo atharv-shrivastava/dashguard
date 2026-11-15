@@ -13,7 +13,7 @@
   ]);
   const MINIMUM_SCORE = 0.35;
   const FRAME_INTERVAL_MS = 180;
-  const ASSET_CACHE = "dashguard-ui-v9";
+  const ASSET_CACHE = "dashguard-ui-v10";
   const MEDIAPIPE_ASSETS = [
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/vision_bundle.mjs",
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm/vision_wasm_internal.js",
@@ -247,8 +247,11 @@
       this.onDetections = typeof settings.onDetections === "function" ? settings.onDetections : function () {};
       this.onError = typeof settings.onError === "function" ? settings.onError : function () {};
       this.tracker = new GreedyObjectTracker(settings.trackerOptions);
+      // Use a classic worker so MediaPipe's WASM glue can register
+      // ModuleFactory through importScripts. The worker dynamically imports
+      // the MediaPipe ESM bundle, which is supported in dedicated classic workers.
       this.workerFactory = settings.workerFactory || (() =>
-        new Worker(new URL("./detection-worker.js", document.baseURI), { type: "module" }));
+        new Worker(new URL("./detection-worker.js", document.baseURI)));
       this.createBitmap = settings.createBitmap || (typeof createImageBitmap === "function"
         ? createImageBitmap.bind(root) : null);
       this.requestFrame = settings.requestFrame || (callback => requestAnimationFrame(callback));
