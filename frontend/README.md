@@ -33,9 +33,9 @@ The Drive screen now reads browser `DeviceMotionEvent` data after the user taps 
 
 From this directory, with Node.js installed:
 
-\`\`\`bash
+```bash
 node --test tests/motion.test.cjs
-\`\`\`
+```
 
 The tests cover linear-acceleration readings, jerk calculation, the gravity-compensated fallback, gyroscope readings, denied permission, and missing sensor data. They use mocked browser events; they do not replace testing on a physical phone.
 
