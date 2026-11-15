@@ -1,4 +1,5 @@
 (() => {
+  if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
   const screens = [...document.querySelectorAll(".screen")];
   const navItems = [...document.querySelectorAll(".nav")];
   const toast = document.getElementById("toast");
