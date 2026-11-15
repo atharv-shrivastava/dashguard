@@ -304,3 +304,56 @@ test("continues worker initialization when an asset prefetch fails", async () =>
     if (previousFetch) Object.defineProperty(globalThis, "fetch", previousFetch);
   }
 });
+
+
+test("creates a classic worker for MediaPipe WASM compatibility", async () => {
+  const previousWorker = Object.getOwnPropertyDescriptor(globalThis, "Worker");
+  const previousDocument = Object.getOwnPropertyDescriptor(globalThis, "document");
+  let workerOptions = "not-created";
+
+  class MockWorker {
+    constructor(url, options) {
+      this.url = url;
+      workerOptions = options;
+      this.onmessage = null;
+      this.onerror = null;
+      this.terminated = false;
+    }
+    postMessage(message) {
+      if (message.type === "init") {
+        queueMicrotask(() => this.onmessage({
+          data: { type: "ready", faceDetectionAvailable: true }
+        }));
+      }
+    }
+    terminate() { this.terminated = true; }
+  }
+
+  Object.defineProperty(globalThis, "Worker", {
+    configurable: true,
+    value: MockWorker
+  });
+  Object.defineProperty(globalThis, "document", {
+    configurable: true,
+    value: { baseURI: "https://dashguard.test/frontend/" }
+  });
+
+  const detector = new DetectionController({
+    videoElement: { readyState: 4, videoWidth: 640, videoHeight: 480, currentTime: 1 },
+    canvasElement: { getContext: () => ({ clearRect() {} }) },
+    createBitmap: async () => ({ close() {} }),
+    requestFrame: () => 1,
+    cancelFrame() {}
+  });
+
+  try {
+    assert.equal(await detector.start(), true);
+    assert.equal(workerOptions, undefined);
+    detector.stop();
+  } finally {
+    if (previousWorker) Object.defineProperty(globalThis, "Worker", previousWorker);
+    else delete globalThis.Worker;
+    if (previousDocument) Object.defineProperty(globalThis, "document", previousDocument);
+    else delete globalThis.document;
+  }
+});
