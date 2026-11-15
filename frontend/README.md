@@ -10,17 +10,27 @@ From this directory:
 python -m http.server 8080
 ```
 
-Open http://localhost:8080. Installability and offline caching require serving from localhost or HTTPS. The service worker caches the UI shell after first load.
+Open http://localhost:8080. Installability and offline caching require serving from localhost or HTTPS. The service worker caches the UI shell, including the motion-monitor module, after the first load.
 
 ## Screens
 
 - Home: camera-view illustration, drive snapshot and Start Drive.
-- Drive: preview overlay, alert status, illustrative motion graph, timer and End Drive.
+- Drive: preview overlay, alert status, live phone motion monitor, rolling jerk graph, timer and End Drive.
 - Events: local saved-event placeholder.
 - Settings: voice preference, pre-event duration and offline status.
 
-## Important
+## Live motion monitor
 
-This is a **frontend prototype only**. Camera access, object detection, distance/TTC calculations, physical accelerometer and gyroscope readings, audio alerts, video recording and event clip preservation are not connected. Camera boxes, distance values and the motion graph are illustrative. Do not use this preview as a driving safety system.
+The Drive screen now reads browser `DeviceMotionEvent` data after the user taps **Enable Motion**. It plots a rolling 20-second jerk trace, displays linear acceleration, and displays gyroscope rotation rate when the browser provides it.
+
+- Serve from HTTPS or localhost. Browsers generally restrict motion sensors on insecure origins.
+- iOS browsers that require motion permission show the native permission prompt after the user taps the button.
+- Some browsers/devices may not provide linear acceleration or gyroscope fields. A gravity-compensated fallback is used for acceleration when possible; missing gyroscope data is shown as unavailable.
+- The motion monitor runs while the page is active. It is not a background sensor service.
+- The displayed high-jerk marker uses a prototype threshold and is **not calibrated, validated, or connected to automatic event capture**.
+
+## Not connected yet
+
+Camera access, object detection, distance/TTC estimation, audio safety alerts, video recording, 60-second pre-event buffering and protected event clips are not implemented. Camera boxes and distance labels remain illustrative. Do not use this preview as a driving safety system.
 
 A browser/PWA shell does not provide dependable background camera recording on a phone. The eventual camera, sensor and rolling-recording pipeline must live in a platform layer that can own those device capabilities.
