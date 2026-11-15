@@ -1,0 +1,1 @@
+{"name":"DashGuard","short_name":"DashGuard","description":"A calmer companion for the road.","start_url":"./","display":"standalone","background_color":"#f4f1e9","theme_color":"#202821","icons":[{"src":"assets/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
