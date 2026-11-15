@@ -29,6 +29,16 @@ The Drive screen now reads browser `DeviceMotionEvent` data after the user taps 
 - The motion monitor runs while the page is active. It is not a background sensor service.
 - The displayed high-jerk marker uses a prototype threshold and is **not calibrated, validated, or connected to automatic event capture**.
 
+## Run motion-monitor tests
+
+From this directory, with Node.js installed:
+
+\`\`\`bash
+node --test tests/motion.test.cjs
+\`\`\`
+
+The tests cover linear-acceleration readings, jerk calculation, the gravity-compensated fallback, gyroscope readings, denied permission, and missing sensor data. They use mocked browser events; they do not replace testing on a physical phone.
+
 ## Not connected yet
 
 Camera access, object detection, distance/TTC estimation, audio safety alerts, video recording, 60-second pre-event buffering and protected event clips are not implemented. Camera boxes and distance labels remain illustrative. Do not use this preview as a driving safety system.
