@@ -87,7 +87,8 @@
       const generation = ++this.generation;
       this.starting = true;
       this.onStatus("loading", "LOADING ON-DEVICE MODEL");
-      this.startPromise = new Promise(resolve => { this.resolveStart = resolve; });
+      const pendingStart = new Promise(resolve => { this.resolveStart = resolve; });
+      this.startPromise = pendingStart;
 
       try {
         this.worker = this.workerFactory();
@@ -99,8 +100,9 @@
         this.worker.postMessage({ type: "init" });
       } catch (error) {
         this.fail(generation, error.message || "Could not start the detection worker.");
+        return pendingStart;
       }
-      return this.startPromise;
+      return pendingStart;
     }
 
     handleMessage(message, generation) {
