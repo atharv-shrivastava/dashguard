@@ -1,29 +1,29 @@
 # DashGuard
 
-A phone-first driving companion focused on one integrated Drive Mode: camera-based road awareness, motion monitoring, audible alerts, and locally protected event recordings.
+An offline-first driving companion prototype. The intended Drive Mode brings camera awareness, motion monitoring, audible warnings and locally protected incident clips into one experience.
 
-## Current repository state
+## Project areas
 
-The first deliverable is the **mobile-first frontend preview** in [`frontend/`](frontend/). It uses plain HTML, CSS and JavaScript, with no framework or runtime package dependencies. A service worker caches the interface for offline viewing after its first load from localhost or HTTPS.
+- `frontend/`: phone-first browser/PWA UI prototype. It includes foreground motion monitoring and a browser camera preview. It is not a background dashcam.
+- `android/`: native Android application prototype using one CameraX session for camera preview and on-device object detection with MediaPipe.
 
-### Frontend preview
+## Native Android object detection
 
-- Home dashboard with a camera-view illustration, drive summary and Start Drive action.
-- Drive screen with a preview overlay, alert status, motion graph, timer and end-drive control.
-- Saved Events and Settings screens.
-- Responsive layout with safe-area spacing for phone screens.
+The Android project currently opens the rear camera, runs Google's EfficientDet-Lite0 detector locally, and overlays boxes for people and common vehicle categories. See [android/README.md](android/README.md) for build instructions and limitations.
 
-**The camera and recording pipeline are still UI placeholders.** The Drive screen now reads browser motion events after the user enables permission, plots jerk, and shows gyroscope rotation rate when available. Camera detection, distance/TTC estimation, audio safety alerts, continuous recording and event capture are not connected yet. The camera overlay and distance values remain illustrative.
+The first Android build downloads the model and verifies its SHA-256 checksum. The model is bundled into the resulting APK, so object detection itself does not need a network connection after installation.
 
-## Run the preview
+## Browser preview
+
+Run the static UI locally:
 
 ```bash
 cd frontend
 python -m http.server 8080
 ```
 
-Open `http://localhost:8080`. You can also host the static `frontend/` folder over HTTPS and install it as a PWA where supported. The frontend itself is offline-cacheable after first load; motion readings work locally while the page is active and require HTTPS or localhost. This does not mean browser background camera recording or background sensor monitoring is supported.
+Open `http://localhost:8080`. The PWA requires HTTPS or localhost for camera and motion APIs. It remains a UI/prototyping path; the native Android app is the intended owner of the production camera pipeline.
 
-## Direction
+## Not implemented yet
 
-The target is an offline-first phone experience. The interface can be reused as a web/PWA shell, but the camera + sensor + rolling-recording pipeline must run in a platform layer that can reliably own the camera and foreground/background lifecycle. Android native integration remains the leading candidate, but an APK distribution requirement is not part of the product definition.
+Distance estimation, object tracking, time-to-collision, risk-based audio alerts, background/foreground recording service, the rolling 60-second buffer, protected event clips, and merging native detection into the complete Drive Mode UI still need implementation and device testing.
