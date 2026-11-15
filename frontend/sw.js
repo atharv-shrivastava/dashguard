@@ -1,4 +1,4 @@
-const CACHE = "dashguard-ui-v7";
+const CACHE = "dashguard-ui-v8";
 const ASSETS = [
   "./", "./index.html", "./styles.css", "./app.js", "./camera.js",
   "./motion.js", "./detection.js", "./detection-worker.js",
@@ -29,7 +29,8 @@ self.addEventListener("fetch", event => {
   const isVisionRuntime = RUNTIME_HOSTS.has(url.hostname) && (
     url.hostname === "cdn.jsdelivr.net"
       ? url.pathname.includes("/@mediapipe/tasks-vision@1.2.3/")
-      : url.pathname.includes("/mediapipe-models/object_detector/efficientdet_lite0/")
+      : (url.pathname.includes("/mediapipe-models/object_detector/efficientdet_lite0/") ||
+        url.pathname.includes("/mediapipe-models/face_detector/blaze_face_full_range/"))
   );
   if (!isLocalAppFile && !isVisionRuntime) return;
 
