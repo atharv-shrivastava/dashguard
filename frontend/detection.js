@@ -13,7 +13,7 @@
   ]);
   const MINIMUM_SCORE = 0.35;
   const FRAME_INTERVAL_MS = 180;
-  const ASSET_CACHE = "dashguard-ui-v8";
+  const ASSET_CACHE = "dashguard-ui-v9";
   const MEDIAPIPE_ASSETS = [
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/vision_bundle.mjs",
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm/vision_wasm_internal.js",
@@ -308,18 +308,30 @@
     }
 
     async cacheVisionAssets() {
-      // Warm the version-pinned runtime/model from the controlled page thread.
-      // The service worker stores successful CORS responses for later offline use.
+      // Cache warming is an optimization, never a prerequisite for inference.
+      // A private-browsing quota, blocked cache write, or optional face-model
+      // download must not prevent the worker from trying the road detector.
       if (!root.caches || typeof root.fetch !== "function") return;
-      const cache = await root.caches.open(ASSET_CACHE);
-      for (const url of MEDIAPIPE_ASSETS) {
-        if (await cache.match(url)) continue;
-        const response = await root.fetch(url, { mode: "cors", cache: "force-cache" });
-        if (!response.ok || response.type === "opaque") {
-          throw new Error("Could not download a required local detection asset: " + url);
-        }
-        await cache.put(url, response.clone()).catch(() => {});
+
+      let cache;
+      try {
+        cache = await root.caches.open(ASSET_CACHE);
+      } catch (_) {
+        return;
       }
+
+      await Promise.all(MEDIAPIPE_ASSETS.map(async url => {
+        try {
+          if (await cache.match(url)) return;
+          const response = await root.fetch(url, { mode: "cors", cache: "force-cache" });
+          if (response.ok && response.type !== "opaque") {
+            await cache.put(url, response.clone()).catch(() => {});
+          }
+        } catch (_) {
+          // The worker performs the authoritative load and returns a precise
+          // component-level error if a required runtime/model cannot load.
+        }
+      }));
     }
 
     handleMessage(message, generation) {
