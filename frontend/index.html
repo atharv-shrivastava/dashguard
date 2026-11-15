@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#202821">
+  <meta name="description" content="DashGuard, a calmer companion for the road.">
+  <title>DashGuard · Drive calmly</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="DashGuard home"><span class="brand-icon">⌁</span><span><b>dashguard</b><small>drive with a little more calm</small></span></a>
+    <button class="icon-btn" data-go="settings" aria-label="Settings">⚙</button>
+  </header>
+
+  <main>
+    <section class="screen active" id="home">
+      <div class="intro">
+        <div><p class="eyebrow">YOUR QUIET CO-PILOT</p><h1>Ready for the road<span>.</span></h1><p class="muted">A little awareness goes a long way.</p></div>
+        <div class="sun-mark">✳<small>stay<br>steady</small></div>
+      </div>
+
+      <article class="camera-card">
+        <div class="camera-head"><span><i class="dot amber"></i> CAMERA VIEW</span><span class="tag">PREVIEW MOCKUP</span></div>
+        <div class="road" aria-label="Illustrative camera view">
+          <div class="hill"></div><div class="road-shape"></div><div class="lane lane-a"></div><div class="lane lane-b"></div>
+          <div class="car car-back"></div><div class="car car-near"></div>
+          <div class="box box-car">CAR</div><div class="box box-person">PERSON</div>
+          <div class="distance">28 m <small>· ahead</small></div>
+          <div class="road-caption"><span>FRONT CAMERA</span><span>ILLUSTRATIVE VIEW</span></div>
+        </div>
+        <div class="camera-foot"><span class="camera-symbol">◎</span><span><b>Your view, all in one place</b><small>Camera detection appears here when connected.</small></span><span class="chevron">↗</span></div>
+      </article>
+
+      <div class="section-title"><div><p class="eyebrow">DRIVE SNAPSHOT</p><h2>Everything in sync</h2></div><span class="pill"><i class="dot sage"></i> SYSTEM IDLE</span></div>
+      <div class="metrics">
+        <article class="metric"><span class="metric-label">FOLLOWING GAP</span><strong>2.8 <small>sec*</small></strong><p>Comfortable space ahead</p><div class="track"><i></i></div></article>
+        <article class="metric"><span class="metric-label">MOTION</span><strong>Calm <small>·</small></strong><p>No unusual movement</p><svg class="spark" viewBox="0 0 120 24"><path d="M0 12 Q8 8 16 13 T32 12 T48 11 T64 13 T80 10 T96 13 T120 11"/></svg></article>
+      </div>
+      <div class="start-card"><div class="start-note"><span>✦</span><div><b>Your drive, quietly watched over.</b><small>Detection, motion and recording in one mode.</small></div></div><button class="primary" id="startDrive"><span>▶</span> START DRIVE <span class="arrow">↗</span></button><p class="fine">Start only when your phone is securely mounted.</p></div>
+    </section>
+
+    <section class="screen" id="drive">
+      <div class="drive-title"><div><p class="eyebrow">DRIVE MODE IS ON</p><h1>Stay present<span>.</span></h1></div><span class="record-pill"><i class="dot red"></i> RECORDING</span></div>
+      <article class="camera-card active-camera">
+        <div class="camera-head"><span><i class="dot red"></i> FRONT VIEW</span><span class="timer" id="timer">00:00:00</span></div>
+        <div class="road active-road"><div class="hill"></div><div class="road-shape"></div><div class="lane lane-a"></div><div class="lane lane-b"></div><div class="car car-back"></div><div class="car car-near"></div><div class="box box-car">CAR · 28 m*</div><div class="box box-person">PERSON*</div><div class="road-caption"><span>CAMERA ENGINE NOT CONNECTED</span><span>DEMO OVERLAY</span></div></div>
+        <div class="camera-status"><span><i class="dot amber"></i> Preview placeholder</span><small>Local processing planned</small></div>
+      </article>
+      <div class="alert"><span>✧</span><div><b>All clear for now</b><small>Safety alerts will appear here.</small></div><span class="chevron">⌄</span></div>
+      <div class="section-title compact"><div><p class="eyebrow">LIVE SIGNALS</p><h2>Motion watch</h2></div><span class="pill demo"><i class="dot sage"></i> LIVE DEMO</span></div>
+      <article class="motion-card">
+        <div class="motion-head"><div><b>Movement rhythm</b><small>Acceleration · illustrative data</small></div><strong><span id="jerk">0.08</span><small>m/s³</small></strong></div>
+        <div class="chart"><div class="axis"><span>0.8</span><span>0.4</span><span>0</span><span>−0.4</span></div><svg viewBox="0 0 320 100" preserveAspectRatio="none" role="img" aria-label="Illustrative motion graph"><path class="gridline" d="M0 12H320M0 37H320M0 62H320M0 87H320"/><path id="chartArea" class="area" d="M0 50 L20 46 L40 54 L60 49 L80 52 L100 45 L120 55 L140 49 L160 52 L180 47 L200 53 L220 48 L240 54 L260 49 L280 46 L300 53 L320 50Z"/><path id="chartLine" class="line" d="M0 50 L20 46 L40 54 L60 49 L80 52 L100 45 L120 55 L140 49 L160 52 L180 47 L200 53 L220 48 L240 54 L260 49 L280 46 L300 53 L320 50"/></svg></div>
+        <div class="legend"><span><i class="dot sage"></i> Smooth movement</span><small>Last 20 seconds</small></div>
+      </article>
+      <div class="drive-metrics"><article><small>FOLLOWING GAP</small><b>2.8 <em>sec*</em></b><span>Demo estimate</span></article><article><small>NEAREST OBJECT</small><b>28 <em>m*</em></b><span>Distance engine pending</span></article></div>
+      <div class="drive-actions"><button class="secondary" id="mute">◖ <span id="soundLabel">Sound on</span></button><button class="stop" id="endDrive">END DRIVE</button></div>
+      <p class="disclaimer">Demo values are illustrative, not real-time safety measurements. Keep your attention on the road.</p>
+    </section>
+
+    <section class="screen" id="events">
+      <div class="page-heading"><p class="eyebrow">YOUR MOMENTS</p><h1>Saved events<span>.</span></h1><p class="muted">The moments you asked DashGuard to keep.</p></div>
+      <div class="empty"><div class="folder-art"><span>✳</span><div>♡</div></div><h2>Nothing saved just yet</h2><p>When an event is detected, its moment will live here. Your clips stay on your device.</p><small><i class="dot sage"></i> LOCAL STORAGE · NO CLOUD REQUIRED</small></div>
+    </section>
+
+    <section class="screen" id="settings">
+      <div class="page-heading"><p class="eyebrow">MAKE IT YOURS</p><h1>A few preferences<span>.</span></h1><p class="muted">Small details for a calmer drive.</p></div>
+      <div class="settings">
+        <div class="setting"><span class="setting-icon">◖</span><span><b>Voice alerts</b><small>Sound warnings for important events</small></span><label class="toggle"><input id="voice" type="checkbox" checked><i></i></label></div>
+        <div class="setting"><span class="setting-icon">◷</span><span><b>Pre-event recording</b><small>Keep the 60 seconds before an event</small></span><strong>60 sec</strong></div>
+        <div class="setting"><span class="setting-icon">⌂</span><span><b>Storage location</b><small>Saved privately on this device</small></span><strong>Local</strong></div>
+        <div class="setting"><span class="setting-icon">✳</span><span><b>Offline mode</b><small>Core features designed to work offline</small></span><strong class="sage-text">Planned</strong></div>
+      </div>
+      <div class="about"><span>✳</span><div><b>DashGuard</b><small>Thoughtful tech for the road.</small><small class="version">FRONTEND PREVIEW · 0.1</small></div></div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <button class="nav active" data-screen="home"><span>⌂</span>Home</button>
+    <button class="nav" data-screen="drive"><span>⌁</span>Drive</button>
+    <button class="nav" data-screen="events"><span>▤</span>Events</button>
+    <button class="nav" data-screen="settings"><span>⚙</span>Settings</button>
+  </nav>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="app.js"></script>
+</body>
+</html>
