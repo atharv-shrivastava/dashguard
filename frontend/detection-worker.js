@@ -72,7 +72,8 @@ self.onmessage = async event => {
         detections,
         imageWidth: bitmap.width,
         imageHeight: bitmap.height,
-        inferenceMs: Math.round(performance.now() - startedAt)
+        inferenceMs: Math.round(performance.now() - startedAt),
+        timestampMs: message.timestampMs
       });
     } catch (error) {
       self.postMessage({

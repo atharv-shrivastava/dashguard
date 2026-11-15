@@ -55,7 +55,7 @@ The Drive screen runs Google's EfficientDet-Lite0 object detector through MediaP
 
 The runtime and model are fetched on first use and cached by the service worker where the browser permits. Connect once before expecting offline detection. Clearing site data removes those cached assets. MediaPipe performs image inference on-device and does not send camera frames to Google, though the SDK may send usage metrics as described in its privacy notice. The model and runtime are not bundled in the source repository.
 
-Detection boxes are object labels only. This milestone does not estimate distance, track objects over time, calculate time-to-collision, or trigger safety alerts. Detection speed and quality depend on the phone and browser and must be tested on-device. This is not a driving safety system.
+The browser now assigns short-lived session IDs to detections using a lightweight IoU + predicted-center association tracker. IDs persist across nearby frames and brief missed detections, then expire after the configured miss/time limit. This is geometric tracking, not learned re-identification: IDs can switch when objects overlap, cross, disappear for too long or the detector misses them. Detection speed and quality depend on the phone and browser and must be tested on-device. This is not a driving safety system.
 
 ## Not connected yet
 
@@ -67,3 +67,8 @@ Browser camera and motion access are foreground features. DashGuard stops the ca
 ## Object-detection tests
 
 The detection-controller tests use a mocked worker and canvas geometry; they do not test real model accuracy or frame rate. Real detection requires HTTPS or localhost, a supported modern browser, camera permission and a first online model/runtime load.
+
+
+## Object tracking
+
+Every detection is associated with an ephemeral track ID (`#1`, `#2`, ...) using class-consistent bounding-box IoU and predicted center movement. Matching is greedy one-to-one, motion-smoothed and bounded to a short missed-frame window. IDs reset when detection stops or Drive Mode ends. The tracker is a lightweight geometry heuristic and has not been validated on road footage; it is not a multi-object tracking benchmark implementation.

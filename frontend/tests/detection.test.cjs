@@ -96,3 +96,73 @@ test("reports a model initialization failure without leaving the worker running"
   assert.equal(detector.running, false);
   assert.equal(statuses.at(-1)[0], "error");
 });
+
+
+const { GreedyObjectTracker } = require("../detection.js");
+
+function detection(label, x, y = 100, width = 80, height = 60, score = 0.9) {
+  return { label, score, box: { x, y, width, height } };
+}
+
+test("keeps the same track ID as an object moves between frames", () => {
+  const tracker = new GreedyObjectTracker();
+  const first = tracker.update([detection("car", 100)], 1000, { width: 1280, height: 720 });
+  const next = tracker.update([detection("car", 112)], 1180, { width: 1280, height: 720 });
+
+  assert.equal(first[0].trackId, next[0].trackId);
+  assert.equal(next[0].trackingConfirmed, true);
+  assert.equal(next[0].trackHits, 2);
+});
+
+test("keeps two same-class objects on separate IDs when detector order changes", () => {
+  const tracker = new GreedyObjectTracker();
+  const first = tracker.update([
+    detection("car", 100),
+    detection("car", 700)
+  ], 1000, { width: 1280, height: 720 });
+  const next = tracker.update([
+    detection("car", 688),
+    detection("car", 112)
+  ], 1180, { width: 1280, height: 720 });
+
+  assert.equal(next[0].trackId, first[1].trackId);
+  assert.equal(next[1].trackId, first[0].trackId);
+});
+
+test("recovers the same ID after a short detector miss", () => {
+  const tracker = new GreedyObjectTracker();
+  const first = tracker.update([detection("person", 200)], 1000, { width: 1280, height: 720 });
+  tracker.update([], 1180, { width: 1280, height: 720 });
+  const recovered = tracker.update([detection("person", 208)], 1360, { width: 1280, height: 720 });
+
+  assert.equal(recovered[0].trackId, first[0].trackId);
+});
+
+test("expires stale tracks after the missed-frame budget", () => {
+  const tracker = new GreedyObjectTracker({ maxMissedFrames: 2 });
+  const first = tracker.update([detection("truck", 300)], 1000, { width: 1280, height: 720 });
+  tracker.update([], 1180, { width: 1280, height: 720 });
+  tracker.update([], 1360, { width: 1280, height: 720 });
+  tracker.update([], 1540, { width: 1280, height: 720 });
+  const reappeared = tracker.update([detection("truck", 300)], 1720, { width: 1280, height: 720 });
+
+  assert.notEqual(reappeared[0].trackId, first[0].trackId);
+});
+
+test("does not associate objects with a different class label", () => {
+  const tracker = new GreedyObjectTracker();
+  const car = tracker.update([detection("car", 300)], 1000, { width: 1280, height: 720 });
+  const person = tracker.update([detection("person", 300)], 1180, { width: 1280, height: 720 });
+
+  assert.notEqual(person[0].trackId, car[0].trackId);
+});
+
+test("resets track IDs when a new detection session begins", () => {
+  const tracker = new GreedyObjectTracker();
+  const first = tracker.update([detection("bus", 300)], 1000, { width: 1280, height: 720 });
+  tracker.reset();
+  const next = tracker.update([detection("bus", 300)], 2000, { width: 1280, height: 720 });
+
+  assert.equal(first[0].trackId, 1);
+  assert.equal(next[0].trackId, 1);
+});

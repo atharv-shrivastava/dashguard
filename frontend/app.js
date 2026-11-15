@@ -89,10 +89,10 @@
         onDetections: (detections, meta) => {
           roadObjectCount.textContent = String(detections.length);
           detectionSummary.textContent = detections.length
-            ? "Live objects · " + detections.slice(0, 4).map(item => item.label).join(", ")
+            ? "Tracked · " + detections.slice(0, 4).map(item => item.label + " #" + item.trackId).join(", ")
             : "No supported objects in this frame";
           roadObjectSummary.textContent = detections.length
-            ? [...new Set(detections.map(item => item.label))].join(" · ")
+            ? [...new Set(detections.map(item => item.label + " #" + item.trackId))].join(" · ")
             : "No road objects in view";
           inferenceTime.innerHTML = Number.isFinite(meta.inferenceMs)
             ? Math.round(meta.inferenceMs) + ' <em>ms</em>'
