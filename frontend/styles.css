@@ -18,3 +18,21 @@
 .sensor-readings b{font-size:10px;letter-spacing:0;color:#586f59;font-weight:750;font-variant-numeric:tabular-nums}
 @keyframes pulse{50%{opacity:.35}}
 @media(max-width:340px){.sensor-button{padding:8px}.sensor-readings span{font-size:5.5px}}
+
+
+/* Live camera preview */
+.camera-stage{position:relative;height:205px;overflow:hidden;background:#101714;isolation:isolate}
+.camera-stage video{display:block;width:100%;height:100%;object-fit:cover;background:#101714}
+.camera-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:22px;text-align:center;background:radial-gradient(circle at 50% 38%,#34443b 0,#1b2823 68%)}
+.camera-placeholder-icon{width:48px;height:48px;display:grid;place-items:center;border:1px solid rgba(218,231,211,.25);border-radius:17px;color:#d5e3ce;font-size:30px}
+.camera-placeholder b{font-size:11px;color:#f1f1e8}
+.camera-placeholder small{max-width:230px;font-size:8px;line-height:1.5;color:#aebaae}
+.camera-stage.is-live .camera-placeholder{display:none}
+.camera-live-badge{position:absolute;top:12px;left:12px;display:flex;align-items:center;gap:7px;padding:7px 9px;border:1px solid rgba(255,255,255,.12);border-radius:20px;background:rgba(20,29,25,.76);backdrop-filter:blur(8px);color:#f5f1e9;font-size:7px;font-weight:850;letter-spacing:.75px}
+.camera-live-badge[hidden]{display:none}
+.camera-status{min-height:48px;gap:10px}
+.camera-status .camera-sensor-status{flex:1;min-width:0}
+.camera-status .camera-sensor-status.active{color:#a8c2a2}
+.camera-status .camera-sensor-status.error{color:#d7a28a}
+.camera-status .sensor-button{margin-left:auto}
+@media(max-width:360px){.camera-stage{height:185px}}
