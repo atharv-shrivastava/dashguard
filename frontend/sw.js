@@ -1,4 +1,4 @@
-const CACHE = "dashguard-ui-v4";
+const CACHE = "dashguard-ui-v5";
 const ASSETS = ["./","./index.html","./styles.css","./app.js","./camera.js","./motion.js","./manifest.webmanifest","./assets/icon.svg"];
 self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS))));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key))))));
