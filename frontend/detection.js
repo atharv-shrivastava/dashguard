@@ -339,7 +339,9 @@
       if (message.type === "ready") {
         this.starting = false;
         this.running = true;
-        this.onStatus("active", "LOCAL DETECTION LIVE");
+        this.onStatus("active", message.faceDetectionAvailable === false
+          ? "ROAD OBJECT DETECTION LIVE · FACE MODEL UNAVAILABLE"
+          : "LOCAL DETECTION LIVE");
         const resolve = this.resolveStart;
         this.resolveStart = null;
         if (resolve) resolve(true);
