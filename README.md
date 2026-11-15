@@ -13,7 +13,7 @@ The first deliverable is the **mobile-first frontend preview** in [`frontend/`](
 - Saved Events and Settings screens.
 - Responsive layout with safe-area spacing for phone screens.
 
-**This is UI only.** Camera, object detection, distance/TTC estimation, accelerometer/gyroscope readings, recording, event capture and live audio alerts are not connected yet. All displayed detections and values are explicitly marked as illustrative.
+**The camera and recording pipeline are still UI placeholders.** The Drive screen now reads browser motion events after the user enables permission, plots jerk, and shows gyroscope rotation rate when available. Camera detection, distance/TTC estimation, audio safety alerts, continuous recording and event capture are not connected yet. The camera overlay and distance values remain illustrative.
 
 ## Run the preview
 
@@ -22,7 +22,7 @@ cd frontend
 python -m http.server 8080
 ```
 
-Open `http://localhost:8080`. You can also host the static `frontend/` folder over HTTPS and install it as a PWA where supported. The frontend itself is offline-cacheable after first load; this does not mean browser background camera recording is supported.
+Open `http://localhost:8080`. You can also host the static `frontend/` folder over HTTPS and install it as a PWA where supported. The frontend itself is offline-cacheable after first load; motion readings work locally while the page is active and require HTTPS or localhost. This does not mean browser background camera recording or background sensor monitoring is supported.
 
 ## Direction
 
