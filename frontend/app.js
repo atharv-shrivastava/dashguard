@@ -48,6 +48,12 @@
   const cameraStage = document.getElementById("cameraStage");
   const cameraLiveBadge = document.getElementById("cameraLiveBadge");
   const cameraVideo = document.getElementById("cameraPreview");
+  const objectOverlay = document.getElementById("objectOverlay");
+  const detectionStatus = document.getElementById("detectionStatus");
+  const detectionSummary = document.getElementById("detectionSummary");
+  const roadObjectCount = document.getElementById("roadObjectCount");
+  const roadObjectSummary = document.getElementById("roadObjectSummary");
+  const inferenceTime = document.getElementById("inferenceTime");
 
   const setCameraStatus = (state, label) => {
     cameraStatus.className = "sensor-status camera-sensor-status " + state;
@@ -61,7 +67,39 @@
       state === "waiting" ? "OPENING CAMERA…" : "ENABLE CAMERA";
     cameraStage.classList.toggle("is-live", state === "active");
     cameraLiveBadge.hidden = state !== "active";
+
+    if (state === "active" && objectDetector) {
+      objectDetector.start();
+    } else if (objectDetector) {
+      objectDetector.stop();
+    }
   };
+
+  const setDetectionStatus = (state, label) => {
+    detectionStatus.className = "detection-status " + state;
+    detectionStatus.textContent = label;
+  };
+
+  const objectDetector = window.DashGuardObjectDetection
+    ? new window.DashGuardObjectDetection({
+        videoElement: cameraVideo,
+        canvasElement: objectOverlay,
+        onStatus: setDetectionStatus,
+        onError: message => showToast(message),
+        onDetections: (detections, meta) => {
+          roadObjectCount.textContent = String(detections.length);
+          detectionSummary.textContent = detections.length
+            ? "Live objects · " + detections.slice(0, 4).map(item => item.label).join(", ")
+            : "No supported objects in this frame";
+          roadObjectSummary.textContent = detections.length
+            ? [...new Set(detections.map(item => item.label))].join(" · ")
+            : "No road objects in view";
+          inferenceTime.innerHTML = Number.isFinite(meta.inferenceMs)
+            ? Math.round(meta.inferenceMs) + ' <em>ms</em>'
+            : '— <em>ms</em>';
+        }
+      })
+    : null;
 
   cameraPreview = window.DashGuardCameraPreview
     ? new window.DashGuardCameraPreview({
@@ -183,7 +221,7 @@
     timerId = setInterval(updateTimer, 1000);
     go("drive");
     if (cameraPreview) cameraPreview.start();
-    showToast("Drive Mode started. Allow camera access to show the live view.");
+    showToast("Drive Mode started. The local detector will load when the camera opens.");
   });
 
   document.getElementById("endDrive").addEventListener("click", () => {
@@ -191,7 +229,7 @@
     if (motionMonitor) motionMonitor.stop();
     if (cameraPreview) cameraPreview.stop();
     go("home");
-    showToast("Drive Mode ended. Camera and motion monitoring stopped.");
+    showToast("Drive Mode ended. Camera, detection and motion monitoring stopped.");
   });
 
   document.getElementById("mute").addEventListener("click", () => {

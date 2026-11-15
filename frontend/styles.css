@@ -36,3 +36,16 @@
 .camera-status .camera-sensor-status.error{color:#d7a28a}
 .camera-status .sensor-button{margin-left:auto}
 @media(max-width:360px){.camera-stage{height:185px}}
+
+
+/* Live object-detection overlay and readout */
+.camera-stage{position:relative}
+.camera-stage .object-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.detection-readout{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 14px 12px;color:#aab7a7;font-size:7px;letter-spacing:.35px}
+.detection-readout>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
+.detection-status{font-weight:850;letter-spacing:.7px}
+.detection-status.loading{color:#d7b77d}
+.detection-status.active{color:#b8d3aa}
+.detection-status.error{color:#e2a38a}
+.detection-status.off{color:#9ba89e}
+#roadObjectSummary{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

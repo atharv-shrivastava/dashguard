@@ -1,13 +1,13 @@
 # DashGuard
 
-An offline-first, phone-first driving companion prototype built with plain HTML, CSS and JavaScript.
+An offline-first, phone-first driving companion web app built with HTML, CSS and JavaScript.
 
-## Current app
+## Current web features
 
-- `frontend/`: the browser/PWA application and its phone-first interface.
-- Live rear-camera preview using the browser camera API. The preview runs in the foreground and does not record video.
+- Phone-first Drive Mode interface.
+- Rear-camera preview with on-device object detection using MediaPipe Tasks Vision in a Web Worker.
 - Live phone motion monitoring with acceleration, gyroscope readings when available, and a rolling jerk graph.
-- A service worker caches the frontend shell after its first successful load from localhost or HTTPS.
+- Service-worker caching for the app shell and the vision runtime/model after first use where supported by the browser.
 
 ## Run locally
 
@@ -20,6 +20,4 @@ Open http://localhost:8080. Camera and motion access require localhost or HTTPS 
 
 ## Not implemented yet
 
-Live object detection, object tracking, metric distance estimation, time-to-collision, risk-based audio alerts, continuous recording, the rolling 60-second pre-event buffer and protected local event clips are not implemented. Future detection and driving features will be developed within the browser/PWA app rather than a separate native application.
-
-The current browser preview is foreground-only. It is not a dashcam or a validated driving-safety system.
+Object tracking, metric distance estimation, time-to-collision, risk-based audio alerts, continuous recording, the rolling 60-second pre-event buffer and protected event clips are not implemented. Camera and motion monitoring are foreground-only. This prototype is not a validated driving-safety system.
