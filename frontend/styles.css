@@ -49,3 +49,5 @@
 .detection-status.error{color:#e2a38a}
 .detection-status.off{color:#9ba89e}
 #roadObjectSummary{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.camera-stage .object-overlay{z-index:2}
