@@ -73,18 +73,19 @@ class ObjectDetectionAnalyzer(
         }
         lastSubmittedAtMs = frameTimeMs
 
-        var sourceBitmap: Bitmap? = null
-        var rotatedBitmap: Bitmap? = null
+        var ownedBitmap: Bitmap? = null
+        var pendingImage: MPImage? = null
         var proxyClosed = false
 
         try {
-            val width = imageProxy.width
-            val height = imageProxy.height
-            sourceBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-
+            val frameBitmap = Bitmap.createBitmap(
+                imageProxy.width,
+                imageProxy.height,
+                Bitmap.Config.ARGB_8888,
+            )
             val buffer = imageProxy.planes.first().buffer
             buffer.rewind()
-            sourceBitmap.copyPixelsFromBuffer(buffer)
+            frameBitmap.copyPixelsFromBuffer(buffer)
 
             val rotationDegrees = imageProxy.imageInfo.rotationDegrees
             imageProxy.close()
@@ -93,34 +94,32 @@ class ObjectDetectionAnalyzer(
             val transform = Matrix().apply {
                 postRotate(rotationDegrees.toFloat())
             }
-            rotatedBitmap = Bitmap.createBitmap(
-                sourceBitmap,
+            val rotated = Bitmap.createBitmap(
+                frameBitmap,
                 0,
                 0,
-                sourceBitmap.width,
-                sourceBitmap.height,
+                frameBitmap.width,
+                frameBitmap.height,
                 transform,
                 true,
             )
 
-            if (rotatedBitmap !== sourceBitmap) {
-                sourceBitmap.recycle()
-                sourceBitmap = null
+            if (rotated !== frameBitmap) {
+                frameBitmap.recycle()
             }
+            ownedBitmap = rotated
 
-            val inputImage = BitmapImageBuilder(rotatedBitmap).build()
-            try {
-                detector.detectAsync(inputImage, frameTimeMs)
-                // The callback owns inputImage until it closes it in handleResult().
-                rotatedBitmap = null
-            } catch (error: RuntimeException) {
-                inputImage.close()
-                throw error
-            }
+            val inputImage = BitmapImageBuilder(rotated).build()
+            pendingImage = inputImage
+            detector.detectAsync(inputImage, frameTimeMs)
+
+            // The callback owns inputImage and closes it after MediaPipe returns.
+            pendingImage = null
+            ownedBitmap = null
         } catch (error: Exception) {
             if (!proxyClosed) imageProxy.close()
-            sourceBitmap?.takeIf { !it.isRecycled }?.recycle()
-            rotatedBitmap?.takeIf { !it.isRecycled }?.recycle()
+            pendingImage?.close()
+            ownedBitmap?.takeIf { !it.isRecycled }?.recycle()
             if (!closed.get()) {
                 onError("Frame analysis failed: " + (error.message ?: error.javaClass.simpleName))
             }
