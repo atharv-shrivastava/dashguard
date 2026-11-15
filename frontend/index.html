@@ -54,9 +54,27 @@
       <div class="alert"><span>✧</span><div><b>All clear for now</b><small>Safety alerts will appear here.</small></div><span class="chevron">⌄</span></div>
       <div class="section-title compact"><div><p class="eyebrow">LIVE SIGNALS</p><h2>Motion watch</h2></div><span class="pill demo"><i class="dot sage"></i> LIVE DEMO</span></div>
       <article class="motion-card">
-        <div class="motion-head"><div><b>Movement rhythm</b><small>Acceleration · illustrative data</small></div><strong><span id="jerk">0.08</span><small>m/s³</small></strong></div>
-        <div class="chart"><div class="axis"><span>0.8</span><span>0.4</span><span>0</span><span>−0.4</span></div><svg viewBox="0 0 320 100" preserveAspectRatio="none" role="img" aria-label="Illustrative motion graph"><path class="gridline" d="M0 12H320M0 37H320M0 62H320M0 87H320"/><path id="chartArea" class="area" d="M0 50 L20 46 L40 54 L60 49 L80 52 L100 45 L120 55 L140 49 L160 52 L180 47 L200 53 L220 48 L240 54 L260 49 L280 46 L300 53 L320 50Z"/><path id="chartLine" class="line" d="M0 50 L20 46 L40 54 L60 49 L80 52 L100 45 L120 55 L140 49 L160 52 L180 47 L200 53 L220 48 L240 54 L260 49 L280 46 L300 53 L320 50"/></svg></div>
-        <div class="legend"><span><i class="dot sage"></i> Smooth movement</span><small>Last 20 seconds</small></div>
+        <div class="motion-head">
+          <div><b>Movement rhythm</b><small id="motionSubline">Connect your phone sensors to begin</small></div>
+          <strong><span id="jerk">—</span><small>m/s³ jerk</small></strong>
+        </div>
+        <div class="motion-toolbar">
+          <span class="sensor-status" id="motionStatus"><i class="dot muted-dot"></i> SENSOR OFF</span>
+          <button class="sensor-button" id="enableMotion" type="button">ENABLE MOTION</button>
+        </div>
+        <div class="chart">
+          <div class="axis"><span>12</span><span>8</span><span>4</span><span>0</span></div>
+          <svg viewBox="0 0 320 100" preserveAspectRatio="none" role="img" aria-label="Live phone motion jerk graph">
+            <path class="gridline" d="M0 12H320M0 37H320M0 62H320M0 87H320"/>
+            <path id="chartArea" class="area" d="M0 87 L320 87Z"/>
+            <path id="chartLine" class="line" d="M0 87 L320 87"/>
+          </svg>
+        </div>
+        <div class="sensor-readings">
+          <span>LINEAR ACCELERATION <b id="accelerationValue">— m/s²</b></span>
+          <span>GYROSCOPE <b id="gyroValue">— °/s</b></span>
+        </div>
+        <div class="legend"><span><i class="dot sage"></i> Jerk magnitude</span><small id="motionFootnote">Waiting for permission</small></div>
       </article>
       <div class="drive-metrics"><article><small>FOLLOWING GAP</small><b>2.8 <em>sec*</em></b><span>Demo estimate</span></article><article><small>NEAREST OBJECT</small><b>28 <em>m*</em></b><span>Distance engine pending</span></article></div>
       <div class="drive-actions"><button class="secondary" id="mute">◖ <span id="soundLabel">Sound on</span></button><button class="stop" id="endDrive">END DRIVE</button></div>
@@ -88,6 +106,6 @@
   </nav>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="app.js"></script>
+<script src="motion.js"></script><script src="app.js"></script>
 </body>
 </html>
