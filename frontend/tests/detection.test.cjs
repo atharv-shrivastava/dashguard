@@ -3,7 +3,8 @@ const assert = require("node:assert/strict");
 const {
   DetectionController,
   filterRelevantDetections,
-  mapBoxToCover
+  mapBoxToCover,
+  normalizeFaceDetections
 } = require("../detection.js");
 
 test("keeps relevant road classes and drops low-confidence or unrelated labels", () => {
@@ -176,4 +177,43 @@ test("expires a track after the elapsed-time budget even if missed-frame budget 
   const reappeared = tracker.update([detection("car", 120)], 1540, { width: 1280, height: 720 });
 
   assert.notEqual(reappeared[0].trackId, first[0].trackId);
+});
+
+
+test("normalizes MediaPipe face results into pixel bounding boxes", () => {
+  const faces = normalizeFaceDetections([
+    {
+      categories: [{ score: 0.91 }],
+      boundingBox: { originX: 120, originY: 70, width: 90, height: 110 }
+    },
+    {
+      categories: [{ score: 0.2 }],
+      boundingBox: { originX: 10, originY: 10, width: 30, height: 30 }
+    },
+    {
+      categories: [{ score: 0.88 }],
+      boundingBox: null
+    }
+  ]);
+
+  assert.equal(faces.length, 1);
+  assert.equal(faces[0].label, "face");
+  assert.equal(faces[0].score, 0.91);
+  assert.deepEqual(faces[0].box, { x: 120, y: 70, width: 90, height: 110 });
+});
+
+test("accepts face as a supported tracked detection class", () => {
+  const faces = filterRelevantDetections([
+    { label: "face", score: 0.86, box: { x: 20, y: 30, width: 80, height: 95 } }
+  ]);
+  assert.equal(faces.length, 1);
+  assert.equal(faces[0].label, "face");
+});
+
+test("assigns a stable tracking ID to a face across adjacent frames", () => {
+  const tracker = new GreedyObjectTracker();
+  const first = tracker.update([detection("face", 220, 90, 90, 110)], 1000, { width: 1280, height: 720 });
+  const next = tracker.update([detection("face", 224, 92, 90, 110)], 1180, { width: 1280, height: 720 });
+  assert.equal(first[0].trackId, next[0].trackId);
+  assert.equal(next[0].trackingConfirmed, true);
 });
