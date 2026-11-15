@@ -48,8 +48,19 @@
       <div class="drive-title"><div><p class="eyebrow">DRIVE MODE IS ON</p><h1>Stay present<span>.</span></h1></div><span class="record-pill"><i class="dot red"></i> RECORDING</span></div>
       <article class="camera-card active-camera">
         <div class="camera-head"><span><i class="dot red"></i> FRONT VIEW</span><span class="timer" id="timer">00:00:00</span></div>
-        <div class="road active-road"><div class="hill"></div><div class="road-shape"></div><div class="lane lane-a"></div><div class="lane lane-b"></div><div class="car car-back"></div><div class="car car-near"></div><div class="box box-car">CAR · 28 m*</div><div class="box box-person">PERSON*</div><div class="road-caption"><span>CAMERA ENGINE NOT CONNECTED</span><span>DEMO OVERLAY</span></div></div>
-        <div class="camera-status"><span><i class="dot amber"></i> Preview placeholder</span><small>Local processing planned</small></div>
+        <div class="camera-stage" id="cameraStage">
+          <video id="cameraPreview" autoplay muted playsinline aria-label="Live rear camera preview"></video>
+          <div class="camera-placeholder" id="cameraPlaceholder">
+            <span class="camera-placeholder-icon">◎</span>
+            <b>Camera is off</b>
+            <small>Start Drive to request access to your rear camera.</small>
+          </div>
+          <span class="camera-live-badge" id="cameraLiveBadge" hidden><i class="dot red"></i> LIVE PREVIEW · NOT RECORDING</span>
+        </div>
+        <div class="camera-status">
+          <span class="sensor-status camera-sensor-status" id="cameraStatus"><i class="dot muted-dot"></i> CAMERA OFF</span>
+          <button class="sensor-button" id="enableCamera" type="button">ENABLE CAMERA</button>
+        </div>
       </article>
       <div class="alert"><span>✧</span><div><b>All clear for now</b><small>Safety alerts will appear here.</small></div><span class="chevron">⌄</span></div>
       <div class="section-title compact"><div><p class="eyebrow">LIVE SIGNALS</p><h2>Motion watch</h2></div><span class="pill demo"><i class="dot sage"></i> SENSOR STATUS</span></div>
