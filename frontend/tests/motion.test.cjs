@@ -112,7 +112,8 @@ test("does not start when the user denies motion permission", async () => {
 test("stops cleanly when the sensor provides no usable acceleration fields", async () => {
   const harness = makeMonitor();
   assert.equal(await harness.monitor.start(), true);
-  harness.emit(1000, { acceleration: null, accelerationIncludingGravity: null, rotationRate: null });
+  harness.emit(1000, motionEvent(0));
+  harness.emit(1250, { acceleration: null, accelerationIncludingGravity: null, rotationRate: null });
   assert.equal(harness.monitor.active, false);
   assert.equal(harness.hasListener(), false);
   assert.equal(harness.errors.length, 1);
