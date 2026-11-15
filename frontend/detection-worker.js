@@ -29,15 +29,25 @@ self.onmessage = async event => {
         scoreThreshold: 0.35,
         maxResults: 25
       });
-      faceDetector = await FaceDetector.createFromOptions(vision, {
-        baseOptions: {
-          modelAssetPath: FACE_MODEL_URL,
-          delegate: "CPU"
-        },
-        runningMode: "VIDEO",
-        minDetectionConfidence: 0.45,
-        minSuppressionThreshold: 0.3
-      });
+      try {
+        faceDetector = await FaceDetector.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: FACE_MODEL_URL,
+            delegate: "CPU"
+          },
+          runningMode: "VIDEO",
+          minDetectionConfidence: 0.45,
+          minSuppressionThreshold: 0.3
+        });
+      } catch (faceError) {
+        // Keep road-object detection available if the optional face model fails.
+        self.postMessage({
+          type: "error",
+          fatal: false,
+          message: "Face detection is unavailable, but road-object detection is still running. " +
+            (faceError && faceError.message ? faceError.message : "")
+        });
+      }
       loading = false;
       self.postMessage({ type: "ready" });
     } catch (error) {
@@ -66,7 +76,9 @@ self.onmessage = async event => {
     const startedAt = performance.now();
     try {
       const result = detector.detectForVideo(bitmap, message.timestampMs);
-      const faceResult = faceDetector.detectForVideo(bitmap, message.timestampMs);
+      const faceResult = faceDetector
+        ? faceDetector.detectForVideo(bitmap, message.timestampMs)
+        : { detections: [] };
       const detections = (result.detections || []).map(item => {
         const category = item.categories && item.categories[0];
         const box = item.boundingBox;
