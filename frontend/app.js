@@ -15,6 +15,7 @@
   let muted = false;
   let toastId;
   let lastSpikeAt = 0;
+  let cameraPreview = null;
 
   const showToast = message => {
     toast.textContent = message;
@@ -24,6 +25,7 @@
   };
 
   const go = name => {
+    if (name !== "drive" && cameraPreview) cameraPreview.stop();
     screens.forEach(screen => screen.classList.toggle("active", screen.id === name));
     navItems.forEach(item => {
       const active = item.dataset.screen === name;
@@ -40,6 +42,46 @@
   document.querySelectorAll("[data-go]").forEach(button =>
     button.addEventListener("click", () => go(button.dataset.go))
   );
+
+  const cameraStatus = document.getElementById("cameraStatus");
+  const enableCameraButton = document.getElementById("enableCamera");
+  const cameraStage = document.getElementById("cameraStage");
+  const cameraLiveBadge = document.getElementById("cameraLiveBadge");
+  const cameraVideo = document.getElementById("cameraPreview");
+
+  const setCameraStatus = (state, label) => {
+    cameraStatus.className = "sensor-status camera-sensor-status " + state;
+    cameraStatus.replaceChildren();
+    const dot = document.createElement("i");
+    dot.className = "dot " + (state === "active" ? "sage" : state === "error" ? "amber" : "muted-dot");
+    cameraStatus.append(dot, document.createTextNode(" " + label));
+    enableCameraButton.disabled = state === "waiting";
+    enableCameraButton.textContent =
+      state === "active" ? "STOP CAMERA" :
+      state === "waiting" ? "OPENING CAMERA…" : "ENABLE CAMERA";
+    cameraStage.classList.toggle("is-live", state === "active");
+    cameraLiveBadge.hidden = state !== "active";
+  };
+
+  cameraPreview = window.DashGuardCameraPreview
+    ? new window.DashGuardCameraPreview({
+        videoElement: cameraVideo,
+        onStatus: setCameraStatus,
+        onError: message => showToast(message)
+      })
+    : null;
+
+  enableCameraButton.addEventListener("click", async () => {
+    if (!cameraPreview) {
+      showToast("Camera module failed to load. Refresh the page and try again.");
+      return;
+    }
+    if (cameraPreview.active) {
+      cameraPreview.stop();
+      return;
+    }
+    await cameraPreview.start();
+  });
 
   const timer = document.getElementById("timer");
   const updateTimer = () => {
@@ -140,14 +182,16 @@
     updateTimer();
     timerId = setInterval(updateTimer, 1000);
     go("drive");
-    showToast("Drive preview started. Connect motion sensors on the Drive screen.");
+    if (cameraPreview) cameraPreview.start();
+    showToast("Drive Mode started. Allow camera access to show the live view.");
   });
 
   document.getElementById("endDrive").addEventListener("click", () => {
     clearInterval(timerId);
     if (motionMonitor) motionMonitor.stop();
+    if (cameraPreview) cameraPreview.stop();
     go("home");
-    showToast("Drive preview ended. Motion monitoring stopped.");
+    showToast("Drive Mode ended. Camera and motion monitoring stopped.");
   });
 
   document.getElementById("mute").addEventListener("click", () => {
