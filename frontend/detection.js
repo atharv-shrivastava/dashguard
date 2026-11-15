@@ -106,6 +106,12 @@
 
     update(detections, timestampMs, frameSize) {
       const now = Number.isFinite(timestampMs) ? timestampMs : Date.now();
+      // Expire stale tracks before association so an object cannot reclaim an
+      // ID after it has already exceeded the missed-frame or time budget.
+      this.tracks = this.tracks.filter(track =>
+        track.missedFrames <= this.maxMissedFrames &&
+        now - track.lastSeenAt <= this.maxMissedMs
+      );
       const items = Array.isArray(detections) ? detections : [];
       const width = frameSize && Number.isFinite(frameSize.width) ? frameSize.width : 0;
       const height = frameSize && Number.isFinite(frameSize.height) ? frameSize.height : 0;
