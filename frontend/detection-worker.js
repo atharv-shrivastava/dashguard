@@ -4,8 +4,10 @@
 const MEDIAPIPE_VERSION = "1.2.3";
 const MEDIAPIPE_BASE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@" + MEDIAPIPE_VERSION;
 const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float32/1/efficientdet_lite0.tflite";
+const FACE_MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_full_range/float16/1/blaze_face_full_range.tflite";
 
 let detector = null;
+let faceDetector = null;
 let loading = false;
 
 self.onmessage = async event => {
@@ -14,7 +16,7 @@ self.onmessage = async event => {
     if (loading || detector) return;
     loading = true;
     try {
-      const { FilesetResolver, ObjectDetector } = await import(
+      const { FilesetResolver, ObjectDetector, FaceDetector } = await import(
         MEDIAPIPE_BASE + "/vision_bundle.mjs"
       );
       const vision = await FilesetResolver.forVisionTasks(MEDIAPIPE_BASE + "/wasm");
@@ -26,6 +28,15 @@ self.onmessage = async event => {
         runningMode: "VIDEO",
         scoreThreshold: 0.35,
         maxResults: 25
+      });
+      faceDetector = await FaceDetector.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: FACE_MODEL_URL,
+          delegate: "CPU"
+        },
+        runningMode: "VIDEO",
+        minDetectionConfidence: 0.45,
+        minSuppressionThreshold: 0.3
       });
       loading = false;
       self.postMessage({ type: "ready" });
@@ -43,7 +54,9 @@ self.onmessage = async event => {
 
   if (message.type === "close") {
     if (detector) detector.close();
+    if (faceDetector) faceDetector.close();
     detector = null;
+    faceDetector = null;
     self.close();
     return;
   }
@@ -53,6 +66,7 @@ self.onmessage = async event => {
     const startedAt = performance.now();
     try {
       const result = detector.detectForVideo(bitmap, message.timestampMs);
+      const faceResult = faceDetector.detectForVideo(bitmap, message.timestampMs);
       const detections = (result.detections || []).map(item => {
         const category = item.categories && item.categories[0];
         const box = item.boundingBox;
@@ -67,9 +81,23 @@ self.onmessage = async event => {
           } : null
         };
       }).filter(item => item.box);
+      const faces = (faceResult.detections || []).map(item => {
+        const category = item.categories && item.categories[0];
+        const box = item.boundingBox;
+        return {
+          label: "face",
+          score: category ? category.score : 0,
+          box: box ? {
+            x: box.originX,
+            y: box.originY,
+            width: box.width,
+            height: box.height
+          } : null
+        };
+      }).filter(item => item.box);
       self.postMessage({
         type: "result",
-        detections,
+        detections: detections.concat(faces),
         imageWidth: bitmap.width,
         imageHeight: bitmap.height,
         inferenceMs: Math.round(performance.now() - startedAt),
