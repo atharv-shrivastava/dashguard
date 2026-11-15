@@ -13,6 +13,13 @@
   ]);
   const MINIMUM_SCORE = 0.35;
   const FRAME_INTERVAL_MS = 180;
+  const ASSET_CACHE = "dashguard-ui-v6";
+  const MEDIAPIPE_ASSETS = [
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/vision_bundle.mjs",
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm/vision_wasm_internal.js",
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm/vision_wasm_internal.wasm",
+    "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float32/1/efficientdet_lite0.tflite"
+  ];
 
   function filterRelevantDetections(detections, minimumScore = MINIMUM_SCORE) {
     return (Array.isArray(detections) ? detections : [])
@@ -86,11 +93,14 @@
 
       const generation = ++this.generation;
       this.starting = true;
-      this.onStatus("loading", "LOADING ON-DEVICE MODEL");
+      this.onStatus("loading", "PREPARING LOCAL DETECTOR");
       const pendingStart = new Promise(resolve => { this.resolveStart = resolve; });
       this.startPromise = pendingStart;
 
       try {
+        await this.cacheVisionAssets();
+        if (generation !== this.generation || !this.starting) return pendingStart;
+        this.onStatus("loading", "LOADING ON-DEVICE MODEL");
         this.worker = this.workerFactory();
         this.worker.onmessage = event => this.handleMessage(event.data, generation);
         this.worker.onerror = event => {
@@ -103,6 +113,21 @@
         return pendingStart;
       }
       return pendingStart;
+    }
+
+    async cacheVisionAssets() {
+      // Warm the version-pinned runtime/model from the controlled page thread.
+      // The service worker stores successful CORS responses for later offline use.
+      if (!root.caches || typeof root.fetch !== "function") return;
+      const cache = await root.caches.open(ASSET_CACHE);
+      for (const url of MEDIAPIPE_ASSETS) {
+        if (await cache.match(url)) continue;
+        const response = await root.fetch(url, { mode: "cors", cache: "force-cache" });
+        if (!response.ok || response.type === "opaque") {
+          throw new Error("Could not download a required local detection asset: " + url);
+        }
+        await cache.put(url, response.clone()).catch(() => {});
+      }
     }
 
     handleMessage(message, generation) {
